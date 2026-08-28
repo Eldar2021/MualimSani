@@ -1,0 +1,112 @@
+<resources>
+    <string name="select_language">Tilni tanlang</string>
+
+    <string name="tap_to_open_video">Videoni ochish uchun\nQR skanerini bosing</string>
+    <string name="buy_book">Kitob sotib ol</string>
+    <string name="downloading">Darslar yuklanmoqda\nIltimos, kuting</string>
+    <string name="all_files_downloaded">Barcha fayllar yuklangan</string>
+
+    <!-- Home screen -->
+    <string name="arabic_letters">Arab harflari</string>
+    <string name="suras">Suralar</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Mualim Sani 2 ilovasi faqat \"Муаллиму Саани\" kitobi bilan ishlaydi.\nKitobni olish va Qur\'on kurslari haqida bilish uchun quyidagi kontaktlarga yozishingiz mumkin:</string>
+    <string name="to_home">Bosh sahifaga o\'ting</string>
+
+    <!-- Scanner -->
+    <string name="scanner_hint">QR-ni yaxshiroq o\'qish uchun skanerni kvadrat ichiga yo\'naltiring!</string>
+    <string name="camera_permission_needed">Kameraga ruxsat bering</string>
+    <string name="open_lesson_hint">Darsni ochish uchun skanerlang</string>
+
+
+
+    <!-- Lessons -->
+    <string name="lesson_1">1-dars. أ    ب    ت </string>
+    <string name="lesson_2">2-dars. أ    ب    ت </string>
+    <string name="lesson_3">3-dars.   اَ    اِ     ا </string>
+    <string name="lesson_4">4-dars.  زَ     زِ     ز</string>
+    <string name="lesson_5">5-dars.  مَ     مِ     م</string>
+    <string name="lesson_6">6-dars.  تَ     تِ     ت</string>
+    <string name="lesson_7">7-dars.  نَ     نِ     ن</string>
+    <string name="lesson_8">8-dars.  يَ     يِ     ي</string>
+    <string name="lesson_9">9-dars.  بَ    بِ    ب</string>
+    <string name="lesson_10">10-dars. كَ     كِ     ك</string>
+    <string name="lesson_11">11-dars. لَ     لِ     ل</string>
+    <string name="lesson_12">12-dars. وَ      وِ      و</string>
+    <string name="lesson_13">13-dars. هَ       هِ      ه</string>
+    <string name="lesson_14">14-dars. فَ    فِ    ف</string>
+    <string name="lesson_15">15-dars. قَ     قِ     ق</string>
+    <string name="lesson_16">16-dars. شَ   شِ    ش</string>
+    <string name="lesson_17">17-dars. سَ   سِ    س</string>
+    <string name="lesson_18">18-dars. ثَ     ثِ    ث</string>
+    <string name="lesson_19">19-dars. صَ    صِ   ص</string>
+    <string name="lesson_20">20-dars. طَ     طِ    ط</string>
+    <string name="lesson_21">21-dars.  جَ     جِ      ج</string>
+    <string name="lesson_22">22-dars.  خَ    خِ      خ</string>
+    <string name="lesson_23">23-dars.  حَ     حِ      ح</string>
+    <string name="lesson_24">24-dars.  غَ      غِ      غ</string>
+    <string name="lesson_25">25-dars.  عَ      عِ      ع</string>
+    <string name="lesson_26">26-dars.  دَ       دِ       د</string>
+    <string name="lesson_27">27-dars. ضَ   ضِ    ض</string>
+    <string name="lesson_28">28-dars. ذَ      ذِ      ذ</string>
+    <string name="lesson_29">29-dars. ظَ     ظِ     ظ</string>
+    <string name="lesson_30">30-dars. МАДДИ ТАБИИЙ</string>
+    <string name="lesson_31">31-dars. МАДДИ ТАБИИЙ 2</string>
+    <string name="lesson_32">32-dars. МАДДИ ТАБИИЙ 3</string>
+    <string name="lesson_33">33-dars. МАДДИ ТАБИИЙ 4</string>
+    <string name="lesson_34">34-dars. МАДДИ ТАБИИЙ 5</string>
+    <string name="lesson_35">35-dars. МАДДИ ТАБИИЙ 6</string>
+    <string name="lesson_36">36-dars. МАДДИ ТАБИИЙ 7</string>
+    <string name="lesson_37">37-dars. ТАШДИДД</string>
+    <string name="lesson_38">38-dars. ТАШДИДЛИ ҲАРФЛАР 2</string>
+    <string name="lesson_39">39-dars. ТАШДИДЛИ ҲАРФЛАР 3</string>
+    <string name="lesson_40">40-dars. ТАНВИНЛИ ҲАРФЛАР</string>
+    <string name="lesson_41">41-dars.ТАНВИНЛИ ҲАРФЛАР 2</string>
+    <string name="lesson_42">42-dars. ТАНВИНЛИ ТАШДИД</string>
+    <string name="lesson_43">43-dars. ҲАМЗА</string>
+    <string name="lesson_44">44-dars. ҲАМЗА 2</string>
+    <string name="lesson_45">45-dars. ТА МАРБУТА</string>
+    <string name="lesson_46">46-dars. МУҚАДДАРА АЛИФ, ЁЗИЛМАСА ҲАМ ЎҚИЛАДИГАН ҲАРФЛАР</string>
+    <string name="lesson_47">47-dars. \"ВОВ\" ВА  \"ЙО\" ЙИ МУҚАДДАРА</string>
+    <string name="lesson_48">48-dars. \"ЙО\" ЙИ  АЛИФИЙЙА</string>
+    <string name="lesson_49">49-dars. ЎҚИЛМАЙДИГАН  ҲАРФЛА</string>
+    <string name="lesson_50">50-dars. ҚУЙИДАГИ  КАБИ  СЎЗЛАР  ЎРТАСИДАГИ     АЛИФЛАР  ЎҚИЛМАЙДИ</string>
+    <string name="lesson_51">51-dars. ИДҒОМИ  ШАМСИЙЙ</string>
+    <string name="lesson_52">52-dars. ИЗҲОРИ  ҚАМAРИЙЙА</string>
+    <string name="lesson_53">53-dars. ВАСЛ – ҚЎШИШ</string>
+    <string name="lesson_54">54-dars. КАЛИМАЛАР  СЎНГИГА  ТЎХТА</string>
+    <string name="lesson_55">55-dars. МАДЛИ  КАЛИМАЛАР</string>
+    <string name="lesson_56">56-dars. ИДҒО</string>
+    <string name="lesson_57">57-dars. ИҚЛА</string>
+    <string name="lesson_58">58-dars. \"АЛЛОҲ\" ЛАФЗИ</string>
+    <string name="lesson_59">59-dars. МАДДИ  ЛОЗИМ</string>
+    <string name="lesson_60">60-dars. أ    ب    ت  Араб алифбосининг исмлар</string>
+    <string name="lesson_61">61-dars. ٌكَلِمَةٌ طَيِّبَ</string>
+    <string name="lesson_62">62-dars. ِكَلِمَةُ الشَّهَادَ</string>
+    <string name="lesson_63">63-dars. ِكَلِمَةُ التَّوْحِي</string>
+    <string name="lesson_64">64-dars.ِ كَلِمَةُ  رَدِّ  الْكُفْ</string>
+    <string name="lesson_65">65-dars. ِكَلِمَةُ الْإِسْتِغْفَا</string>
+    <string name="lesson_66">66-dars. ِكَلِمَةُ التَّمْجِي</string>
+    <string name="lesson_67">67-dars. ٌاِيمانٌ مُجْمَ</string>
+    <string name="lesson_68">68-dars. ٌاِيمانٌ مُفَصَّ</string>
+
+    <!-- Suras -->
+    <string name="suro_fatiha">Фатиха сураси</string>
+    <string name="suro_aadiyat">Аадийат сураси</string>
+    <string name="suro_zilzala">Зилзала сураси</string>
+    <string name="suro_takasur">Такасур сураси</string>
+    <string name="suro_kooriya">Коория сураси</string>
+    <string name="suro_fil">Фил сураси</string>
+    <string name="suro_humaza">Хумаза сураси</string>
+    <string name="suro_asr">Аср сураси</string>
+    <string name="suro_kausar">Кавсар сураси</string>
+    <string name="suro_maaun">Мааьун сураси</string>
+    <string name="suro_kuraish">Курайш сураси</string>
+    <string name="suro_masad">Масад сураси</string>
+    <string name="suro_nasr">Наср сураси</string>
+    <string name="suro_kaafirun">Каафирун сураси</string>
+    <string name="suro_nas">Нас сураси</string>
+    <string name="suro_falak">Фалак сураси</string>
+    <string name="suro_ihlas">Ихлас сураси</string>
+</resources>

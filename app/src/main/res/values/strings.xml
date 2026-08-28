@@ -1,0 +1,117 @@
+<resources>
+    <string name="app_name" translatable="false">Muallim Sani 2</string>
+    <string name="select_language">Тилди тандаңыз</string>
+    <string name="english" translatable="false">English</string>
+    <string name="russian" translatable="false">Русский язык</string>
+    <string name="kyrgyz" translatable="false">Кыргыз тили</string>
+    <string name="uzbek" translatable="false">O\'zbek tili</string>
+
+    <string name="tap_to_open_video">Видеону ачуу үчүн\nQR сканерди басыңыз</string>
+    <string name="buy_book">Китеп сатып алуу</string>
+    <string name="downloading">Сабактар жүктөлүүдө\nБираз күтө туруңуз</string>
+    <string name="all_files_downloaded">Бардык файлдар жүктөлдү</string>
+
+
+
+    <!-- Home screen -->
+    <string name="arabic_letters">Арабча тамгалар</string>
+    <string name="suras">Сүрөлөр</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Muallim Sani 2 тиркемеси бир гана \"Муаллиму Саани\" китеби менен иштейт.\nСиз, китепти алуу үчүн жана ошондой эле Куран курстар боюнча, төмөндөгү байланыштарга жазсаңыз болот:</string>
+    <string name="to_home">Башкы бетке өтүү</string>
+
+    <!-- Scanner -->
+    <string name="scanner_hint">QR ды жакшы окуу үчүн, квадраттын ичине каратыңыз!</string>
+    <string name="camera_permission_needed">Камерага уруксат бериңиз</string>
+    <string name="open_lesson_hint">Сабакты ачуу үчүн сканерлеңиз</string>
+
+    <!-- Lessons -->
+    <string name="lesson_1">1-сабак. أ    ب    ت </string>
+    <string name="lesson_2">2-сабак. أ    ب    ت </string>
+    <string name="lesson_3">3-сабак. اَ    اِ    اُ </string>
+    <string name="lesson_4">4-сабак. زَ    زِ    رُ </string>
+    <string name="lesson_5">5-сабак. مَ    مِ    مُ </string>
+    <string name="lesson_6">6-сабак. تَ    تِ    تُ</string>
+    <string name="lesson_7">7-сабак. نَ    نِ    نُ</string>
+    <string name="lesson_8">8-сабак. يَ    يِ    يُ</string>
+    <string name="lesson_9">9-сабак. بَ    بِ    بُ</string>
+    <string name="lesson_10">10-сабак. كَ     كِ     كُ</string>
+    <string name="lesson_11">11-сабак. لَ     لِ     لُ</string>
+    <string name="lesson_12">12-сабак. وَ     وِ     وُ</string>
+    <string name="lesson_13">13-сабак. هَ     هِ     هُ</string>
+    <string name="lesson_14">14-сабак. فَ     فِ     فُ</string>
+    <string name="lesson_15">15-сабак. قَ     قِ     قُ</string>
+    <string name="lesson_16">16-сабак. شَ     شِ     شُ</string>
+    <string name="lesson_17">17-сабак. سَ     سِ     سُ</string>
+    <string name="lesson_18">18-сабак. ثَ     ثِ     ثُ</string>
+    <string name="lesson_19">19-сабак. صَ     صِ     صُ</string>
+    <string name="lesson_20">20-сабак. طَ     طِ     طُ</string>
+    <string name="lesson_21">21-сабак. جَ     جِ     جُ</string>
+    <string name="lesson_22">22-сабак. خَ     خِ     خُ</string>
+    <string name="lesson_23">23-сабак. حَ     حِ     حُ</string>
+    <string name="lesson_24">24-сабак. غَ     غِ     غُ</string>
+    <string name="lesson_25">25-сабак. عَ     عِ     عُ</string>
+    <string name="lesson_26">26-сабак. دَ     دِ     دُ</string>
+    <string name="lesson_27">27-сабак. ضَ     ضِ     ضُ</string>
+    <string name="lesson_28">28-сабак. ذَ     ذِ     ذُ</string>
+    <string name="lesson_29">29-сабак. ظَ     ظِ     ظُ</string>
+    <string name="lesson_30">30-сабак. Мад тыбыштары (созуучу тыбыштар)</string>
+    <string name="lesson_31">31-сабак. Мад тыбыштары (созуучу тыбыштар) 2</string>
+    <string name="lesson_32">32-сабак. Мад тыбыштары (созуучу тыбыштар) 3</string>
+    <string name="lesson_33">33-сабак. Мад тыбыштары (созуучу тыбыштар) 4</string>
+    <string name="lesson_34">34-сабак. Мад тыбыштары (созуучу тыбыштар) 5</string>
+    <string name="lesson_35">35-сабак. Мад тыбыштары (созуучу тыбыштар) 6</string>
+    <string name="lesson_36">36-сабак. Мад тыбыштары (созуучу тыбыштар) 7</string>
+    <string name="lesson_37">37-сабак. Ташдид</string>
+    <string name="lesson_38">38-сабак. Ташдид тамгалары 2</string>
+    <string name="lesson_39">39-сабак. Ташдид тамгалары 3</string>
+    <string name="lesson_40">40-сабак. Танвин тамгалары</string>
+    <string name="lesson_41">41-сабак. Танвин тамгалары 2</string>
+    <string name="lesson_42">42-сабак. Танвин жана ташдиддин окулуусу</string>
+    <string name="lesson_43">43-сабак. Хамзанын жазылыш түрлөрү</string>
+    <string name="lesson_44">44-сабак. Хамзанын жазылыш түрлөрү 2</string>
+    <string name="lesson_45">45-сабак. Та марбута</string>
+    <string name="lesson_46">46-сабак. Көмүскөдөгү \"Алиф\"</string>
+    <string name="lesson_47">47-сабак. Көмүскөдөгү \"Йа\", \"Уау\"</string>
+    <string name="lesson_48">48-сабак. \"Йа\" тамгасынын \"Алиф\" сыяктуу окулушу</string>
+    <string name="lesson_49">49-сабак. \"УАУ\" тамгасынын \"Алиф\" сыяктуу окулушу</string>
+    <string name="lesson_50">50-сабак. Комария тамгалары</string>
+    <string name="lesson_51">51-сабак. Шамсия тамгалары</string>
+    <string name="lesson_52">52-сабак. Комария жана Шамсия мисалдыры</string>
+    <string name="lesson_53">53-сабак. </string>
+    <string name="lesson_54">54-сабак. Арап тилинде сөздүн акыры сүкүн менен токтолот</string>
+    <string name="lesson_55">55-сабак. Бул белги \"~\" 4 же 5 аракет өлчөмүндө созулуусу</string>
+    <string name="lesson_56">56-сабак. Идгам - бир тамганы экинчи тамгага киргизип, мурун менен окуу</string>
+    <string name="lesson_57">57-сабак. Иклааб эрежеси</string>
+    <string name="lesson_58">58-сабак. \"АЛЛАХ\" СӨЗҮ.</string>
+    <string name="lesson_59">59-сабак. Куранда 29 сүрө төмөндөгүдөй тамгалар менен башталат.</string>
+    <string name="lesson_60">60-сабак. Тамгаларды кайталоо!</string>
+    <string name="lesson_61">61-сабак. ٌكَلِمَةٌ طَيِّبَ</string>
+    <string name="lesson_62">62-сабак. ِكَلِمَةُ الشَّهَادَ</string>
+    <string name="lesson_63">63-сабак. ِكَلِمَةُ التَّوْحِي</string>
+    <string name="lesson_64">64-сабак.ِ كَلِمَةُ  رَدِّ  الْكُفْ</string>
+    <string name="lesson_65">65-сабак. ِكَلِمَةُ الْإِسْتِغْفَا</string>
+    <string name="lesson_66">66-сабак. ِكَلِمَةُ التَّمْجِي</string>
+    <string name="lesson_67">67-сабак. ٌاِيمانٌ مُجْمَ</string>
+    <string name="lesson_68">68-сабак. ٌاِيمانٌ مُفَصَّ</string>
+
+    <!-- Suras -->
+    <string name="suro_fatiha">Фатиха сүрөсү</string>
+    <string name="suro_aadiyat">Аадийат сүрөсү</string>
+    <string name="suro_zilzala">Зилзала сүрөсү</string>
+    <string name="suro_takasur">Такасур сүрөсү</string>
+    <string name="suro_kooriya">Коория сүрөсү</string>
+    <string name="suro_fil">Фил сүрөсү</string>
+    <string name="suro_humaza">Хумаза сүрөсү</string>
+    <string name="suro_asr">Аср сүрөсү</string>
+    <string name="suro_kausar">Кавсар сүрөсү</string>
+    <string name="suro_maaun">Мааьун сүрөсү</string>
+    <string name="suro_kuraish">Курайш сүрөсү</string>
+    <string name="suro_masad">Масад сүрөсү</string>
+    <string name="suro_nasr">Наср сүрөсү</string>
+    <string name="suro_kaafirun">Каафирун сүрөсү</string>
+    <string name="suro_nas">Нас сүрөсү</string>
+    <string name="suro_falak">Фалак сүрөсү</string>
+    <string name="suro_ihlas">Ихлас сүрөсү</string>
+</resources>

@@ -1,0 +1,114 @@
+<resources>
+    <string name="select_language">Выберите язык</string>
+
+    <string name="tap_to_open_video">Нажмите на QR-сканер,\nчтобы открыть видео.</string>
+    <string name="buy_book">Купить книгу</string>
+    <string name="downloading">Идёт загрузка уроков\nПожалуйста, подождите</string>
+    <string name="all_files_downloaded">Все файлы скачаны</string>
+
+
+
+    <!-- Home screen -->
+    <string name="arabic_letters">Арабские буквы</string>
+    <string name="suras">Суры</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Приложение Mualim Sani 2 работает только с книгой \"Муаллиму Саани\".\nЧтобы получить книгу и узнать о курсах Корана, вы можете написать по следующим контактам:</string>
+    <string name="to_home">Перейти в главную страницу</string>
+
+    <!-- Scanner -->
+    <string name="scanner_hint">Чтобы лучше прочитать QR, направьте сканер внутрь квадрата!</string>
+    <string name="camera_permission_needed">Дайте разрешение на камеру</string>
+    <string name="open_lesson_hint">Отсканируйте, чтобы открыть урок</string>
+
+
+
+    <!-- Lessons -->
+    <string name="lesson_1">1 урок. أ    ب    ت </string>
+    <string name="lesson_2">2 урок. أ    ب    ت </string>
+    <string name="lesson_3">3 урок. اَ    اِ    اُ </string>
+    <string name="lesson_4">4 урок. زَ    زِ    رُ </string>
+    <string name="lesson_5">5 урок. مَ    مِ    مُ </string>
+    <string name="lesson_6">6 урок. تَ    تِ    تُ</string>
+    <string name="lesson_7">7 урок. نَ    نِ    نُ</string>
+    <string name="lesson_8">8 урок. يَ    يِ    يُ</string>
+    <string name="lesson_9">9 урок. بَ    بِ    بُ</string>
+    <string name="lesson_10">10 урок. كَ     كِ     كُ</string>
+    <string name="lesson_11">11 урок. لَ     لِ     لُ</string>
+    <string name="lesson_12">12 урок. وَ     وِ     وُ</string>
+    <string name="lesson_13">13 урок. هَ     هِ     هُ</string>
+    <string name="lesson_14">14 урок. فَ     فِ     فُ</string>
+    <string name="lesson_15">15 урок. قَ     قِ     قُ</string>
+    <string name="lesson_16">16 урок. شَ     شِ     شُ</string>
+    <string name="lesson_17">17 урок. سَ     سِ     سُ</string>
+    <string name="lesson_18">18 урок. ثَ     ثِ     ثُ</string>
+    <string name="lesson_19">19 урок. صَ     صِ     صُ</string>
+    <string name="lesson_20">20 урок. طَ     طِ     طُ</string>
+    <string name="lesson_21">21 урок. جَ     جِ     جُ</string>
+    <string name="lesson_22">22 урок. خَ     خِ     خُ</string>
+    <string name="lesson_23">23 урок. حَ     حِ     حُ</string>
+    <string name="lesson_24">24 урок. غَ     غِ     غُ</string>
+    <string name="lesson_25">25 урок. عَ     عِ     عُ</string>
+    <string name="lesson_26">26 урок. دَ     دِ     دُ</string>
+    <string name="lesson_27">27 урок. ضَ     ضِ     ضُ</string>
+    <string name="lesson_28">28 урок. ذَ     ذِ     ذُ</string>
+    <string name="lesson_29">29 урок. ظَ     ظِ     ظُ</string>
+    <string name="lesson_30">30 урок. Правило Мад (Удлинение гласного звука)</string>
+    <string name="lesson_31">31 урок. Правило Мад (Удлинение гласного звука) 2</string>
+    <string name="lesson_32">32 урок. Правило Мад (Удлинение гласного звука) 3</string>
+    <string name="lesson_33">33 урок. Правило Мад (Удлинение гласного звука) 4</string>
+    <string name="lesson_34">34 урок. Правило Мад (Удлинение гласного звука) 5</string>
+    <string name="lesson_35">35 урок. Правило Мад (Удлинение гласного звука) 6</string>
+    <string name="lesson_36">36 урок. Правило Мад (Удлинение гласного звука) 7</string>
+    <string name="lesson_37">37 урок. Ташдид</string>
+    <string name="lesson_38">38 урок. Буквы с Ташдидом 2</string>
+    <string name="lesson_39">39 урок. Буквы с Ташдидом 3</string>
+    <string name="lesson_40">40 урок. Буквы Танвин</string>
+    <string name="lesson_41">41 урок. Буквы Танвин 2</string>
+    <string name="lesson_42">42 урок. Чтение Танвина и Ташдида</string>
+    <string name="lesson_43">43 урок. Виды Хамзы</string>
+    <string name="lesson_44">44 урок. Виды хамзы 2</string>
+    <string name="lesson_45">45 урок. Та марбута</string>
+    <string name="lesson_46">46 урок. Непроизносимый \"Алиф\"</string>
+    <string name="lesson_47">47 урок. Непроизносимые \"Йа\", \"Уау\"</string>
+    <string name="lesson_48">48 урок. Чтение буквы \"Йа\" как \"Алиф\"</string>
+    <string name="lesson_49">49 урок. Чтение буквы \"Уау\" как \"Алиф\"</string>
+    <string name="lesson_50">50 урок. Буквы Комария</string>
+    <string name="lesson_51">51 урок. Буквы Шамсия</string>
+    <string name="lesson_52">52 урок. Комария и Шамсия. Примеры:</string>
+    <string name="lesson_53">53 урок. </string>
+    <string name="lesson_54">54 урок. В арабском языке конец слова заканчивается сукуном.</string>
+    <string name="lesson_55">55 урок. Этот символ «~» представляет собой удлинение гласного звука на 4 или 5 хараке.</string>
+    <string name="lesson_56">56 урок. Аль-Идгам</string>
+    <string name="lesson_57">57 урок. Правила Иклааб</string>
+    <string name="lesson_58">58 урок. Слово \"АЛЛАХ\"</string>
+    <string name="lesson_59">59 урок. 29 Сур Корана начинается со следующих букв.</string>
+    <string name="lesson_60">60 урок. Повторение букв!</string>
+    <string name="lesson_61">61 урок. ٌكَلِمَةٌ طَيِّبَ</string>
+    <string name="lesson_62">62 урок. ِكَلِمَةُ الشَّهَادَ</string>
+    <string name="lesson_63">63 урок. ِكَلِمَةُ التَّوْحِي</string>
+    <string name="lesson_64">64 урок.ِ كَلِمَةُ  رَدِّ  الْكُفْ</string>
+    <string name="lesson_65">65 урок. ِكَلِمَةُ الْإِسْتِغْفَا</string>
+    <string name="lesson_66">66 урок. ِكَلِمَةُ التَّمْجِي</string>
+    <string name="lesson_67">67 урок. ٌاِيمانٌ مُجْمَ</string>
+    <string name="lesson_68">68 урок. ٌاِيمانٌ مُفَصَّ</string>
+
+    <!-- Suras -->
+    <string name="suro_fatiha">Сура Фатиха </string>
+    <string name="suro_aadiyat">Сура Аадийат </string>
+    <string name="suro_zilzala">Сура Зилзала </string>
+    <string name="suro_takasur">Сура Такасур </string>
+    <string name="suro_kooriya">Сура Коория </string>
+    <string name="suro_fil">Сура Фил </string>
+    <string name="suro_humaza">Сура Хумаза </string>
+    <string name="suro_asr">Сура Аср </string>
+    <string name="suro_kausar">Сура Кавсар </string>
+    <string name="suro_maaun">Сура Мааьун </string>
+    <string name="suro_kuraish">Сура Курайш</string>
+    <string name="suro_masad">Сура Масад </string>
+    <string name="suro_nasr">Сура Наср </string>
+    <string name="suro_kaafirun">Сура Каафирун </string>
+    <string name="suro_nas">Сура Нас </string>
+    <string name="suro_falak">Сура Фалак </string>
+    <string name="suro_ihlas">Сура Ихлас </string>
+</resources>

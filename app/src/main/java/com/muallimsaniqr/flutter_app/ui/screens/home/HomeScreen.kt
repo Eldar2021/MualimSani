@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -32,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -109,6 +111,22 @@ fun HomeScreen(
         }
     }
 
+    // Ayni oynatici hem normal hem tam ekran yerlesiminde kullanilir.
+    // movableContentOf sayesinde tam ekrana gecerken player yeniden olusturulmaz,
+    // yani video bastan baslamaz ve izlenen konum korunur.
+    val playerContent = remember(videoUri) {
+        movableContentOf {
+            videoUri?.let { uri ->
+                VideoPlayer(
+                    uri = uri,
+                    modifier = Modifier.fillMaxSize(),
+                    isFullScreen = isOnFullScreen,
+                    onFullScreenChanged = { isOnFullScreen = it }
+                )
+            }
+        }
+    }
+
     // Tam ekran modunda ekran yatay cevrilir ve sistem cubuklari gizlenir.
     val activity = remember { context.findAndroidActivity() }
     LaunchedEffect(isOnFullScreen) {
@@ -171,6 +189,8 @@ fun HomeScreen(
                         textAlignment = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
+                            // Edge-to-edge cizimde baslik durum cubugunun altinda kalmasin.
+                            .statusBarsPadding()
                             .padding(horizontal = 10.dp, vertical = 10.dp),
                         onNavigatedIconClick = {
                             coroutineScope.launch { drawerState.open() }
@@ -191,12 +211,7 @@ fun HomeScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         if (videoUri != null) {
-                            VideoPlayer(
-                                uri = videoUri,
-                                modifier = Modifier.fillMaxSize(),
-                                isFullScreen = isOnFullScreen,
-                                onFullScreenChanged = { isOnFullScreen = it }
-                            )
+                            if (!isOnFullScreen) playerContent()
                         } else {
                             EmptyVideoPlaceholder(onBuyBookClick = openOnBoarding)
                         }
@@ -252,12 +267,7 @@ fun HomeScreen(
                     .fillMaxSize()
                     .background(Color.Black)
             ) {
-                VideoPlayer(
-                    uri = videoUri,
-                    modifier = Modifier.fillMaxSize(),
-                    isFullScreen = true,
-                    onFullScreenChanged = { isOnFullScreen = it }
-                )
+                playerContent()
             }
         }
     }

@@ -1,21 +1,34 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# ---------------------------------------------------------------------------
+# MualimSani — R8 / ProGuard kurallari
+# Release build'de kod kucultme (minify) ve kaynak temizleme acik.
+# ---------------------------------------------------------------------------
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Kilitlenme raporlarinin okunabilir olmasi icin satir numaralarini koru.
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Kotlin
+-keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
+-dontwarn kotlin.**
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# --- Firebase / Google Play Services ---
+# Firebase modelleri yansima (reflection) ile olusturulabilir.
+-keepclassmembers class * {
+    @com.google.firebase.database.PropertyName <methods>;
+}
+-dontwarn com.google.firebase.**
+
+# --- ML Kit (barkod okuma) ---
+-keep class com.google.mlkit.** { *; }
+-dontwarn com.google.mlkit.**
+
+# --- Media3 / ExoPlayer ---
+# Media3 kendi consumer kurallarini saglar; ek olarak opsiyonel
+# eklentiler icin uyarilari susturuyoruz.
+-dontwarn androidx.media3.**
+
+# --- Hilt / Dagger ---
+# Hilt kendi consumer kurallarini saglar, ek kurala gerek yok.
+
+# --- Uygulama modelleri ---
+-keep class com.muallimsaniqr.flutter_app.domain.model.** { *; }

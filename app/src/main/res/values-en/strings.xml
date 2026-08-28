@@ -110,4 +110,9 @@
     <string name="suro_nas">Surah An-Nas</string>
     <string name="suro_falak">Surah Al-Falaq</string>
     <string name="suro_ihlas">Surah Al-Ikhlas</string>
+
+    <!-- Downloading / scanner -->
+    <string name="scanner_title">QR scanner</string>
+    <string name="download_failed">Download failed.\nCheck your internet connection and try again.</string>
+    <string name="retry">Retry</string>
 </resources>

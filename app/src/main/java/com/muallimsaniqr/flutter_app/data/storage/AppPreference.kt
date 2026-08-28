@@ -94,7 +94,9 @@ class AppPreference(@ApplicationContext context: Context) {
     }
 
     fun getLanguage(): Language {
-        return Language.values()[getInt(PREF_LANGUAGE, Language.KYRGYZ.ordinal)]
+        // getOrNull: kayitli deger gecersizse (ornegin enum degisirse) uygulama cokmez.
+        return Language.entries.getOrNull(getInt(PREF_LANGUAGE, Language.KYRGYZ.ordinal))
+            ?: Language.KYRGYZ
     }
 
     fun clearData() {

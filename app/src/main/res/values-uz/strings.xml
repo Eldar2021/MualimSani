@@ -109,4 +109,9 @@
     <string name="suro_nas">Нас сураси</string>
     <string name="suro_falak">Фалак сураси</string>
     <string name="suro_ihlas">Ихлас сураси</string>
+
+    <!-- Downloading / scanner -->
+    <string name="scanner_title">QR skaner</string>
+    <string name="download_failed">Yuklashda xatolik.\nInternet aloqasini tekshirib, qayta urinib ko\'ring.</string>
+    <string name="retry">Qayta urinish</string>
 </resources>

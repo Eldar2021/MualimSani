@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Android 15+ ile birlikte uygulamalar tam ekran (edge-to-edge) cizilir,
+         bu yuzden statusBarColor artik kullanilmiyor. -->
     <style name="Theme.MualimSani" parent="android:Theme.Material.Light.NoActionBar">
-
         <item name="android:windowBackground">@color/white</item>
-        <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
-
         <item name="android:dialogTheme">@style/DialogFullScreen</item>
     </style>
 

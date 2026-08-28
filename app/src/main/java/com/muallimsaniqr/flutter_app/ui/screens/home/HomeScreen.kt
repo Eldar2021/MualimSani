@@ -1,7 +1,9 @@
 package com.muallimsaniqr.flutter_app.ui.screens.home
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -16,18 +18,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,15 +42,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.muallimsaniqr.flutter_app.R
-import com.muallimsaniqr.flutter_app.R.*
 import com.muallimsaniqr.flutter_app.domain.model.HeaderItem
 import com.muallimsaniqr.flutter_app.domain.model.Language
 import com.muallimsaniqr.flutter_app.domain.model.Lesson
+import com.muallimsaniqr.flutter_app.ui.extensions.findAndroidActivity
 import com.muallimsaniqr.flutter_app.ui.extensions.getDownloadedVideoFolder
 import com.muallimsaniqr.flutter_app.ui.extensions.painter
 import com.muallimsaniqr.flutter_app.ui.extensions.showToast
@@ -58,9 +59,7 @@ import com.muallimsaniqr.flutter_app.ui.widgets.SelectLanguage
 import com.muallimsaniqr.flutter_app.ui.widgets.buttons.MualimButton
 import com.muallimsaniqr.flutter_app.ui.widgets.headers.Header
 import com.muallimsaniqr.flutter_app.ui.widgets.toolbars.NavigatedToolbar
-import com.muallimsaniqr.flutter_app.utils.language.LocaleUtils
-import io.sanghun.compose.video.VideoPlayer
-import io.sanghun.compose.video.uri.VideoPlayerMediaItem
+import com.muallimsaniqr.flutter_app.ui.widgets.video.VideoPlayer
 import kotlinx.coroutines.launch
 
 @Composable
@@ -71,53 +70,79 @@ fun HomeScreen(
     onLanguageChanged: (Language) -> Unit = {}
 ) {
 
-    var context = LocalContext.current
+    val context = LocalContext.current
 
-    var fileNameExceptVideoExt by remember {
-        mutableIntStateOf(0)
-    }
-    var videoUri: Uri? by remember {
-        mutableStateOf(null)
-    }
-
-    var isOnFullScreen by remember {
-        mutableStateOf(false)
-    }
+    var selectedFileName by remember { mutableIntStateOf(0) }
+    var isOnFullScreen by remember { mutableStateOf(false) }
 
     val lazyColumnState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     val scannerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
-        onResult = {
-            val data: Intent? = it.data
-            val result = data?.getStringExtra(ScannerActivity.RESULT_SUCCESS)
-            result?.let {
-                fileNameExceptVideoExt = vm.getFileNameExceptExtByScannerResult(it)
+        onResult = { activityResult ->
+            val scanned = activityResult.data?.getStringExtra(ScannerActivity.RESULT_SUCCESS)
+            if (scanned != null) {
+                val fileName = vm.getFileNameExceptExtByScannerResult(scanned)
+                if (fileName != 0) selectedFileName = fileName
             }
-        })
+        }
+    )
 
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    // Video secildiginde: dersi "okundu" olarak kaydet ve listeyi o derse kaydir.
+    // Onceki surumde bu islemler kompozisyonun icinde yapiliyordu (yan etki hatasi).
+    LaunchedEffect(selectedFileName) {
+        if (selectedFileName != 0) {
+            vm.setScannedId(selectedFileName)
+            val index = vm.getLessonIndexByFileName(selectedFileName)
+            if (index >= 0) lazyColumnState.scrollToItem(index)
+        }
+    }
+
+    val videoUri: Uri? = remember(selectedFileName) {
+        if (selectedFileName == 0) {
+            null
+        } else {
+            val file = context.getDownloadedVideoFolder().resolve("$selectedFileName.mp4")
+            if (file.exists()) file.toUri() else null
+        }
+    }
+
+    // Tam ekran modunda ekran yatay cevrilir ve sistem cubuklari gizlenir.
+    val activity = remember { context.findAndroidActivity() }
+    LaunchedEffect(isOnFullScreen) {
+        activity?.requestedOrientation = if (isOnFullScreen) {
+            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+    }
+    BackHandler(enabled = isOnFullScreen) { isOnFullScreen = false }
 
     Box(modifier = Modifier.fillMaxSize()) {
         ModalNavigationDrawer(
             drawerState = drawerState,
+            gesturesEnabled = !isOnFullScreen,
             drawerContent = {
                 ModalDrawerSheet {
                     SelectLanguage(
                         language = lang,
-                        onLanguageSelected = {
-                            LocaleUtils.setLocale(context, it)
-                            onLanguageChanged(it)
-                            coroutineScope.launch {
-                                drawerState.close()
-                            }
+                        onLanguageSelected = { selected ->
+                            coroutineScope.launch { drawerState.close() }
+                            onLanguageChanged(selected)
                         }
                     )
-                    Divider(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 10.dp, horizontal = 20.dp))
-                    MualimButton(text = R.string.buy_book.strResource, modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp, horizontal = 20.dp)
+                    )
+                    MualimButton(
+                        text = R.string.buy_book.strResource,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+                    ) {
+                        coroutineScope.launch { drawerState.close() }
                         openOnBoarding()
                     }
                 }
@@ -132,7 +157,7 @@ fun HomeScreen(
                         modifier = Modifier.padding(bottom = 12.dp, end = 4.dp)
                     ) {
                         Icon(
-                            painter = drawable.ic_qr.painter,
+                            painter = R.drawable.ic_qr.painter,
                             contentDescription = "QR",
                             modifier = Modifier.size(32.dp),
                             tint = MaterialTheme.colorScheme.onSurface
@@ -141,143 +166,77 @@ fun HomeScreen(
                 },
                 topBar = {
                     NavigatedToolbar(
-                        title = stringResource(string.app_name),
+                        title = stringResource(R.string.app_name),
                         icon = R.drawable.ic_hamburger,
                         textAlignment = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 10.dp, vertical = 10.dp),
                         onNavigatedIconClick = {
-                            coroutineScope.launch {
-                                drawerState.open()
-                            }
+                            coroutineScope.launch { drawerState.open() }
                         }
                     )
                 }
             ) { paddings ->
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddings)
                 ) {
-                    Column {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(300.dp)
-                                .background(MaterialTheme.colorScheme.primaryContainer),
-                            contentAlignment = Alignment.Center
-                        ) {
-
-
-                            if (fileNameExceptVideoExt != 0) {
-                                vm.setScannedId(fileNameExceptVideoExt)
-                                SideEffect {
-                                    coroutineScope.launch {
-                                        lazyColumnState.scrollToItem(
-                                            vm.getLessonIndexByFileName(
-                                                fileNameExceptVideoExt
-                                            )
-                                        )
-                                    }
-                                }
-                                videoUri =
-                                    if (fileNameExceptVideoExt != 0) context.getDownloadedVideoFolder()
-                                        .resolve("$fileNameExceptVideoExt.mp4").toUri() else null
-                                videoUri?.let {
-                                    VideoScreen(
-                                        fileName = it,
-                                        onFullScreenEnter = {
-                                            isOnFullScreen = true
-                                        },
-                                        onFullScreenExit = {
-                                            isOnFullScreen = false
-                                        }
-                                    )
-                                }
-                            } else {
-                                Row(
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .padding(top = 10.dp, end = 10.dp)
-                                        .background(
-                                            MaterialTheme.colorScheme.primaryContainer.copy(
-                                                alpha = 0.7F
-                                            )
-                                        )
-                                        .clickable { openOnBoarding() },
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = R.string.buy_book.strResource,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        modifier = Modifier.padding(10.dp)
-                                    )
-                                    Icon(
-                                        painter = R.drawable.ic_info.painter,
-                                        contentDescription = "Info",
-                                        modifier = Modifier.padding(start = 4.dp),
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
-
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        painter = drawable.ic_qr.painter,
-                                        modifier = Modifier
-                                            .size(60.dp),
-                                        tint = MaterialTheme.colorScheme.onSurface,
-                                        contentDescription = "QR"
-                                    )
-                                    Text(
-                                        text = stringResource(string.tap_to_open_video),
-                                        style = MaterialTheme.typography.titleLarge,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        modifier = Modifier.padding(start = 10.dp)
-                                    )
-                                }
-                            }
-
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (videoUri != null) {
+                            VideoPlayer(
+                                uri = videoUri,
+                                modifier = Modifier.fillMaxSize(),
+                                isFullScreen = isOnFullScreen,
+                                onFullScreenChanged = { isOnFullScreen = it }
+                            )
+                        } else {
+                            EmptyVideoPlaceholder(onBuyBookClick = openOnBoarding)
                         }
+                    }
 
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        state = lazyColumnState
+                    ) {
+                        items(vm.items.size) { index ->
+                            when (val item = vm.items[index]) {
+                                is HeaderItem -> Header(
+                                    text = item.title.strResource,
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
 
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                            state = lazyColumnState
-                        ) {
-                            items(vm.items.size) {
-                                val item = vm.items[it]
-                                when (item) {
-                                    is HeaderItem -> {
-                                        Header(
-                                            text = item.title.strResource,
-                                            style = MaterialTheme.typography.titleMedium,
-                                        )
-                                    }
-
-                                    is Lesson -> {
-                                        val backgroundColor = if (fileNameExceptVideoExt == item.fileNameExceptExt) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background
-                                        val textColor = if (fileNameExceptVideoExt == item.fileNameExceptExt) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                                        Text(
-                                            text = item.title.strResource,
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .background(backgroundColor)
-                                                .clickable {
-                                                    if (vm.checkBeforeScanned(item.id)) fileNameExceptVideoExt =
-                                                        item.fileNameExceptExt
-                                                    else context.showToast(R.string.open_lesson_hint)
+                                is Lesson -> {
+                                    val isSelected = selectedFileName == item.fileNameExceptExt
+                                    Text(
+                                        text = item.title.strResource,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(
+                                                if (isSelected) MaterialTheme.colorScheme.primary
+                                                else MaterialTheme.colorScheme.background
+                                            )
+                                            .clickable {
+                                                if (vm.checkBeforeScanned(item.id)) {
+                                                    selectedFileName = item.fileNameExceptExt
+                                                } else {
+                                                    context.showToast(R.string.open_lesson_hint)
                                                 }
-                                                .padding(8.dp),
-                                            color = textColor
-                                        )
-                                    }
+                                            }
+                                            .padding(8.dp),
+                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                                        else MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
                             }
                         }
@@ -286,36 +245,62 @@ fun HomeScreen(
             }
         }
 
-        if (isOnFullScreen) {
-            Box(modifier = Modifier.fillMaxSize().background(Color.Black))
+        // Tam ekran: video butun ekrani kaplar.
+        if (isOnFullScreen && videoUri != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+            ) {
+                VideoPlayer(
+                    uri = videoUri,
+                    modifier = Modifier.fillMaxSize(),
+                    isFullScreen = true,
+                    onFullScreenChanged = { isOnFullScreen = it }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyVideoPlaceholder(onBuyBookClick: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 10.dp, end = 10.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7F))
+                .clickable { onBuyBookClick() },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = R.string.buy_book.strResource,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.padding(10.dp)
+            )
+            Icon(
+                painter = R.drawable.ic_info.painter,
+                contentDescription = null,
+                modifier = Modifier.padding(start = 4.dp),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         }
 
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = R.drawable.ic_qr.painter,
+                modifier = Modifier.size(60.dp),
+                tint = MaterialTheme.colorScheme.onSurface,
+                contentDescription = "QR"
+            )
+            Text(
+                text = stringResource(R.string.tap_to_open_video),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.padding(start = 10.dp)
+            )
+        }
     }
-
-
-
-}
-
-
-@Composable
-fun VideoScreen(fileName: Uri, modifier: Modifier = Modifier, onFullScreenEnter: () -> Unit = {}, onFullScreenExit: () -> Unit = {},) {
-    Box(modifier = modifier.fillMaxSize()) {
-        VideoPlayer(
-            mediaItems = listOf(
-                VideoPlayerMediaItem.StorageMediaItem(fileName),
-            ),
-            modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center)
-                .background(MaterialTheme.colorScheme.onPrimaryContainer),
-            onFullScreenEnter = onFullScreenEnter,
-            onFullScreenExit = onFullScreenExit,
-        )
-    }
-}
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen()
 }

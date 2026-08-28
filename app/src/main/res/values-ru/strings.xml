@@ -111,4 +111,9 @@
     <string name="suro_nas">Сура Нас </string>
     <string name="suro_falak">Сура Фалак </string>
     <string name="suro_ihlas">Сура Ихлас </string>
+
+    <!-- Downloading / scanner -->
+    <string name="scanner_title">QR сканер</string>
+    <string name="download_failed">Ошибка при загрузке.\nПроверьте подключение к интернету и повторите попытку.</string>
+    <string name="retry">Повторить</string>
 </resources>

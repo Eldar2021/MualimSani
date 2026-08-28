@@ -114,4 +114,9 @@
     <string name="suro_nas">Нас сүрөсү</string>
     <string name="suro_falak">Фалак сүрөсү</string>
     <string name="suro_ihlas">Ихлас сүрөсү</string>
+
+    <!-- Downloading / scanner -->
+    <string name="scanner_title">QR сканер</string>
+    <string name="download_failed">Жүктөө учурунда ката кетти.\nИнтернет байланышын текшерип, кайра аракет кылыңыз.</string>
+    <string name="retry">Кайра аракет кылуу</string>
 </resources>

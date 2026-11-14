@@ -2,12 +2,12 @@
 
 QR kod ile Kuran okumayı öğreten Android uygulaması. Kullanıcı "Муаллиму Саани"
 kitabındaki QR kodu tarar, ilgili ders videosu uygulamada açılır. Videolar ilk
-açılışta Firebase Storage'dan indirilip cihazda saklanır, sonrasında internetsiz
+açılışta GitHub Releases'tan indirilip cihazda saklanır, sonrasında internetsiz
 izlenebilir.
 
 - **Paket adı:** `com.muallimsaniqr.flutter_app`
 - **Teknolojiler:** Kotlin, Jetpack Compose, Hilt, Media3 (ExoPlayer), CameraX,
-  ML Kit (barkod), Firebase Storage
+  ML Kit (barkod)
 - **Desteklenen diller:** Kırgızca, Rusça, Özbekçe, İngilizce
 - **minSdk 26** (Android 8.0) / **targetSdk 36** (Android 16)
 
@@ -15,15 +15,15 @@ izlenebilir.
 
 ## 1. Geliştirme ortamı
 
-| Gereksinim | Sürüm |
-|---|---|
-| Android Studio | Güncel sürüm |
-| JDK | 17 |
-| Android SDK Platform | 37 (`compileSdk`) |
-| Android SDK Build-Tools | 37.0.0 |
-| Gradle | 9.7.1 (wrapper ile otomatik iner) |
-| Android Gradle Plugin | 9.3.2 |
-| Kotlin | 2.3.21 (AGP içinde gelir) |
+| Gereksinim              | Sürüm                             |
+| ----------------------- | --------------------------------- |
+| Android Studio          | Güncel sürüm                      |
+| JDK                     | 17                                |
+| Android SDK Platform    | 37 (`compileSdk`)                 |
+| Android SDK Build-Tools | 37.0.0                            |
+| Gradle                  | 9.7.1 (wrapper ile otomatik iner) |
+| Android Gradle Plugin   | 9.3.2                             |
+| Kotlin                  | 2.3.21 (AGP içinde gelir)         |
 
 Android Studio'da **Tools → SDK Manager** üzerinden "Android SDK Platform 37" ve
 "Android SDK Build-Tools 37" kurulu olmalıdır.
@@ -35,12 +35,8 @@ Android Studio'da **Tools → SDK Manager** üzerinden "Android SDK Platform 37"
 Aşağıdaki dosyalar güvenlik nedeniyle `.gitignore` ile hariç tutulmuştur.
 Projeyi derlemek için bunları elle eklemeniz gerekir:
 
-### `app/google-services.json`
-Firebase istemci yapılandırması. Firebase Console → Proje ayarları →
-"Uygulamalarınız" bölümünden indirilir ve `app/` klasörüne konur.
-Bu dosya olmadan proje **derlenmez**.
-
 ### `keystore.properties` (proje kök dizininde)
+
 Release imzalama bilgileri. Şu formatta oluşturun:
 
 ```properties
@@ -51,6 +47,7 @@ keyPassword=********
 ```
 
 ### `key/` klasörü
+
 İmzalama anahtarı (`key.jks`). **Bu dosya kaybolursa Play Store'daki uygulamanın
 güncellemesi bir daha yayınlanamaz.** Yedeğini güvenli bir yerde (şifre yöneticisi,
 şifreli disk) saklayın.
@@ -80,6 +77,7 @@ Debug sürümü ayrı paket adıyla (`...flutter_app.debug`) kurulur, yani relea
 sürümüyle aynı telefonda yan yana durabilir.
 
 ### Sürüm numarasını yükseltme
+
 Her Play Store yüklemesinde `app/build.gradle.kts` içindeki `versionCode`
 bir artırılmalı, `versionName` ise kullanıcıya görünen sürümdür:
 
@@ -90,35 +88,50 @@ versionName = "1.3.0"  // görünen sürüm
 
 ---
 
-## 4. Firebase
+## 4. Ders videoları
 
-Videolar `Firebase Storage → videos/` klasöründen indirilir. Dosya adları ders
-numarasıyla eşleşir: `1.mp4`, `2.mp4`, ... `101.mp4` (sureler).
-
-Klasör adı `app/build.gradle.kts` içinde tanımlıdır:
+Videolar Firebase'de değil, bu repo'nun **GitHub Release**'inde durur:
+[`videos-v1`](https://github.com/Eldar2021/MualimSani/releases/tag/videos-v1).
+Uygulama ilk açılışta önce `manifest.json` dosyasını, sonra listedeki bütün
+videoları indirir. Adres `app/build.gradle.kts` içinde tanımlıdır:
 
 ```kotlin
-buildConfigField("String", "FIREBASE_VIDEOS_FOLDER", "\"videos/\"")
+buildConfigField("String", "VIDEOS_BASE_URL", "\"https://github.com/Eldar2021/MualimSani/releases/download/videos-v1/\"")
 ```
 
-> **Önemli:** Google, Eylül 2024 duyurusuyla Cloud Storage for Firebase'i ücretsiz
-> (Spark) planda kullanımdan kaldırdı. Proje Spark planındaysa video indirme
-> isteklerine **HTTP 402** döner ve uygulama videoları indiremez. Videoların
-> çalışması için Firebase projesinin **Blaze (kullandıkça öde)** planında olması
-> gerekir.
+Başka bir sunucuya (ör. Cloudflare R2) geçmek için bu adresi değiştirip
+videoları oraya yüklemek yeterlidir; uygulama kodu değişmez.
 
-Storage kuralları, videoların herkes tarafından okunabilmesine izin vermelidir:
+### Dosya adları
 
+Dosya adı, kitaptaki QR kodun içindeki numaradır:
+
+| Dosyalar              | İçerik                   |
+| --------------------- | ------------------------ |
+| `1.mp4` … `68.mp4`    | 1–68. dersler            |
+| `101.mp4` … `116.mp4` | Sureler (Âdiyât → İhlâs) |
+
+Tam liste `HomeVM.kt` içindeki `Lesson(...)` satırlarındadır.
+
+> **Eksik videolar (Kasım 2026):** 30, 52 ve 56. derslerin videoları henüz yok.
+> Bu derslere tıklanınca video açılmaz (uygulama çökmez).
+
+### Video yükleme / güncelleme
+
+Videoları doğru isimlerle bir klasöre koyup ([GitHub CLI](https://cli.github.com/)
+ile giriş yapılmış olarak):
+
+```bash
+scripts/publish-videos.sh <video-klasoru> --dry-run   # önce kontrol
+scripts/publish-videos.sh <video-klasoru>             # yükle
 ```
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /videos/{file} {
-      allow read: if true;
-      allow write: if false;
-    }
-  }
-}
-```
+
+Script eksik/fazla dosyaları yakalar, `manifest.json`'u (dosya adı + boyut) üretir
+ve en son onu yükler. Eksik videoyla yüklemek için `--allow-missing` eklenir.
+Telefonlar her açılışta değil, yalnızca indirme ekranında manifest'i okur; boyutu
+değişen veya yeni eklenen videoları indirir.
+
+> Videolar (`resource/` klasörü) git'e **eklenmez**, sadece Release'e yüklenir.
 
 ---
 
@@ -126,11 +139,12 @@ service firebase.storage {
 
 ```
 app/src/main/java/com/muallimsaniqr/flutter_app/
-├── App.kt                     Uygulama sınıfı (Hilt + Firebase başlatma)
+├── App.kt                     Uygulama sınıfı (Hilt)
 ├── MainActivity.kt            Tek activity; açılış ekranını ve dili belirler
 ├── common/base/               Ortak temel sınıflar
 ├── data/
 │   ├── repository/            Repository uygulaması
+│   ├── videos/                Video manifest'i ve HTTPS indirici
 │   └── storage/               SharedPreferences sarmalayıcı
 ├── di/                        Hilt modülleri
 ├── domain/                    Model ve repository arayüzleri

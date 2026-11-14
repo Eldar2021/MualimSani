@@ -1,9 +1,10 @@
 # Muallim Sani 2
 
 QR kod ile Kuran okumayı öğreten Android uygulaması. Kullanıcı "Муаллиму Саани"
-kitabındaki QR kodu tarar, ilgili ders videosu uygulamada açılır. Videolar ilk
-açılışta GitHub Releases'tan indirilip cihazda saklanır, sonrasında internetsiz
-izlenebilir.
+kitabındaki QR kodu tarar, ilgili ders videosu uygulamada açılır. Her ders videosu
+ilk açıldığında GitHub Releases'tan indirilip cihazda saklanır; sonraki açılışlarda
+internetsiz oynatılır. İsteyen kullanıcı yan menüden bütün dersleri bir kerede
+indirebilir.
 
 - **Paket adı:** `com.muallimsaniqr.flutter_app`
 - **Teknolojiler:** Kotlin, Jetpack Compose, Hilt, Media3 (ExoPlayer), CameraX,
@@ -92,8 +93,14 @@ versionName = "1.3.0"  // görünen sürüm
 
 Videolar Firebase'de değil, bu repo'nun **GitHub Release**'inde durur:
 [`videos-v1`](https://github.com/Eldar2021/MualimSani/releases/tag/videos-v1).
-Uygulama ilk açılışta önce `manifest.json` dosyasını, sonra listedeki bütün
-videoları indirir. Adres `app/build.gradle.kts` içinde tanımlıdır:
+
+- **Normal akış:** QR taranınca (veya taranmış bir derse dokununca) video cihazda
+  varsa hemen oynar; yoksa oynatıcı alanında ilerleme göstergesiyle iner, sonra oynar.
+  Bu yol `manifest.json` kullanmaz, boyut sunucunun yanıtından alınır.
+- **Yan menü → "Tüm dersleri indir":** `manifest.json`'u okuyup bütün videoları
+  indirir (internetsiz kullanım için, ~220 MB).
+
+Adres `app/build.gradle.kts` içinde tanımlıdır:
 
 ```kotlin
 buildConfigField("String", "VIDEOS_BASE_URL", "\"https://github.com/Eldar2021/MualimSani/releases/download/videos-v1/\"")
@@ -125,8 +132,8 @@ scripts/publish-videos.sh <video-klasoru>             # yükle
 
 Script eksik/fazla dosyaları yakalar, `manifest.json`'u (dosya adı + boyut) üretir
 ve en son onu yükler. Eksik videoyla yüklemek için `--allow-missing` eklenir.
-Telefonlar her açılışta değil, yalnızca indirme ekranında manifest'i okur; boyutu
-değişen veya yeni eklenen videoları indirir.
+Bir videoyu sunucuda **aynı adla değiştirirseniz**, onu zaten indirmiş telefonlar eski
+sürümü oynatmaya devam eder (yalnızca "Tüm dersleri indir" boyut farkını görüp yeniler).
 
 > Videolar (`resource/` klasörü) git'e **eklenmez**, sadece Release'e yüklenir.
 

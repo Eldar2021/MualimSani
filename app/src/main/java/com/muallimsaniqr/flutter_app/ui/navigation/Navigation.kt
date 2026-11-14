@@ -26,7 +26,6 @@ import com.muallimsaniqr.flutter_app.ui.screens.onboarding.OnboardingScreen
 fun AppNavHost(
     navController: NavHostController,
     startDestination: String,
-    areVideosDownloaded: Boolean,
     modifier: Modifier = Modifier,
     onLanguageChanged: (Language) -> Unit = {},
     currentLanguage: Language = Language.KYRGYZ,
@@ -46,22 +45,20 @@ fun AppNavHost(
                 if (cameFromAnotherScreen) {
                     navController.popBackStack()
                 } else {
-                    val next =
-                        if (areVideosDownloaded) Screens.Home.route else Screens.Downloading.route
-                    navController.navigate(next) {
+                    // Videolar artik toplu indirilmiyor; ders acildikca tek tek iner.
+                    navController.navigate(Screens.Home.route) {
                         popUpTo(Screens.Onboarding.route) { inclusive = true }
                     }
                 }
             }
         }
 
+        // Yan menudeki "tum dersleri indir" (internetsiz kullanim icin). Bitince ana ekrana doner.
         composable(Screens.Downloading.route) {
             val vm: FileDownloaderVM = hiltViewModel()
 
             FileDownloadingScreen(vm) {
-                navController.navigate(Screens.Home.route) {
-                    popUpTo(Screens.Downloading.route) { inclusive = true }
-                }
+                navController.popBackStack()
             }
         }
 
@@ -70,6 +67,11 @@ fun AppNavHost(
                 lang = currentLanguage,
                 openOnBoarding = {
                     navController.navigate(Screens.Onboarding.route) {
+                        launchSingleTop = true
+                    }
+                },
+                openDownloadAll = {
+                    navController.navigate(Screens.Downloading.route) {
                         launchSingleTop = true
                     }
                 },

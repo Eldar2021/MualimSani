@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,6 +38,7 @@ import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,12 +49,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.muallimsaniqr.flutter_app.R
 import com.muallimsaniqr.flutter_app.domain.model.HeaderItem
 import com.muallimsaniqr.flutter_app.domain.model.Language
 import com.muallimsaniqr.flutter_app.domain.model.Lesson
 import com.muallimsaniqr.flutter_app.ui.extensions.findAndroidActivity
-import com.muallimsaniqr.flutter_app.ui.extensions.getDownloadedVideoFolder
 import com.muallimsaniqr.flutter_app.ui.extensions.painter
 import com.muallimsaniqr.flutter_app.ui.extensions.showToast
 import com.muallimsaniqr.flutter_app.ui.extensions.strResource
@@ -69,12 +71,15 @@ fun HomeScreen(
     vm: HomeVM = hiltViewModel(),
     lang: Language = Language.KYRGYZ,
     openOnBoarding: () -> Unit = {},
+    openDownloadAll: () -> Unit = {},
     onLanguageChanged: (Language) -> Unit = {}
 ) {
 
     val context = LocalContext.current
 
-    var selectedFileName by remember { mutableIntStateOf(0) }
+    // rememberSaveable: "tumunu indir" ekranindan geri donuldugunde secili ders kaybolmasin.
+    var selectedFileName by rememberSaveable { mutableIntStateOf(0) }
+    val videoState by vm.videoState.collectAsStateWithLifecycle()
     var isOnFullScreen by remember { mutableStateOf(false) }
 
     val lazyColumnState = rememberLazyListState()
@@ -96,20 +101,17 @@ fun HomeScreen(
     // Onceki surumde bu islemler kompozisyonun icinde yapiliyordu (yan etki hatasi).
     LaunchedEffect(selectedFileName) {
         if (selectedFileName != 0) {
+            vm.openVideo(selectedFileName)
             vm.setScannedId(selectedFileName)
             val index = vm.getLessonIndexByFileName(selectedFileName)
             if (index >= 0) lazyColumnState.scrollToItem(index)
         }
     }
 
-    val videoUri: Uri? = remember(selectedFileName) {
-        if (selectedFileName == 0) {
-            null
-        } else {
-            val file = context.getDownloadedVideoFolder().resolve("$selectedFileName.mp4")
-            if (file.exists()) file.toUri() else null
-        }
-    }
+    // Video cihazdaysa hemen oynatilir; yoksa HomeVM indirir ve bu arada ilerleme gosterilir.
+    val videoUri: Uri? = (videoState as? VideoState.Ready)
+        ?.takeIf { it.fileName == selectedFileName }
+        ?.file?.toUri()
 
     // Ayni oynatici hem normal hem tam ekran yerlesiminde kullanilir.
     // movableContentOf sayesinde tam ekrana gecerken player yeniden olusturulmaz,
@@ -163,6 +165,19 @@ fun HomeScreen(
                         coroutineScope.launch { drawerState.close() }
                         openOnBoarding()
                     }
+                    MualimButton(
+                        text = R.string.download_all.strResource,
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    ) {
+                        coroutineScope.launch { drawerState.close() }
+                        openDownloadAll()
+                    }
+                    Text(
+                        text = R.string.download_all_hint.strResource,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                    )
                 }
             }
         ) {
@@ -210,10 +225,17 @@ fun HomeScreen(
                             .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
-                        if (videoUri != null) {
-                            if (!isOnFullScreen) playerContent()
-                        } else {
-                            EmptyVideoPlaceholder(onBuyBookClick = openOnBoarding)
+                        val state = videoState
+                        when {
+                            videoUri != null -> if (!isOnFullScreen) playerContent()
+                            selectedFileName == 0 -> EmptyVideoPlaceholder(onBuyBookClick = openOnBoarding)
+                            state is VideoState.Failed -> VideoFailed(
+                                notAvailable = state.notAvailable,
+                                onRetry = vm::retryVideo
+                            )
+                            else -> VideoDownloading(
+                                percent = (state as? VideoState.Downloading)?.percent
+                            )
                         }
                     }
 
@@ -269,6 +291,58 @@ fun HomeScreen(
             ) {
                 playerContent()
             }
+        }
+    }
+}
+
+/**
+ * Video cihazda yokken, indirilirken gosterilir. [percent] null ise (baglanti kuruluyor,
+ * boyut henuz bilinmiyor) donen belirsiz gosterge cizilir; takilmis gibi "%0" yazmaz.
+ */
+@Composable
+private fun VideoDownloading(percent: Int?) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(contentAlignment = Alignment.Center) {
+            if (percent == null) {
+                CircularProgressIndicator(modifier = Modifier.size(64.dp))
+            } else {
+                CircularProgressIndicator(
+                    progress = { percent / 100F },
+                    modifier = Modifier.size(64.dp),
+                )
+                Text(text = "$percent%", style = MaterialTheme.typography.labelMedium)
+            }
+        }
+        Text(
+            text = R.string.video_loading.strResource,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 12.dp)
+        )
+    }
+}
+
+/** Indirme basarisiz oldugunda. Video sunucuda hic yoksa tekrar deneme sunulmaz. */
+@Composable
+private fun VideoFailed(notAvailable: Boolean, onRetry: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(horizontal = 24.dp)
+    ) {
+        Text(
+            text = if (notAvailable) R.string.video_not_available.strResource
+            else R.string.download_failed.strResource,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            textAlign = TextAlign.Center,
+        )
+        if (!notAvailable) {
+            MualimButton(
+                text = R.string.retry.strResource,
+                modifier = Modifier.padding(top = 16.dp),
+                onClick = onRetry
+            )
         }
     }
 }

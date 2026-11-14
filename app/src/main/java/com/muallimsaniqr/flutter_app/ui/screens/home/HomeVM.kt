@@ -10,14 +10,89 @@ import com.muallimsaniqr.flutter_app.domain.model.Lesson
 import com.muallimsaniqr.flutter_app.domain.model.Lessons
 import com.muallimsaniqr.flutter_app.domain.repository.MualimRepository
 import com.muallimsaniqr.flutter_app.utils.language.LocaleUtils
+import android.util.Log
+import androidx.lifecycle.viewModelScope
+import com.muallimsaniqr.flutter_app.data.videos.VideoNotAvailableException
+import com.muallimsaniqr.flutter_app.data.videos.VideoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
+
+/** Ana ekrandaki oynaticinin durumu. */
+sealed interface VideoState {
+    /** Henuz ders secilmedi. */
+    data object Idle : VideoState
+
+    /** Video cihazda yok, indiriliyor. [percent] 0..100; baglanti kurulurken null. */
+    data class Downloading(val fileName: Int, val percent: Int?) : VideoState
+
+    /** Video hazir, oynatilabilir. */
+    data class Ready(val fileName: Int, val file: File) : VideoState
+
+    /** Indirilemedi. [notAvailable] true ise video sunucuda hic yok (tekrar denemek ise yaramaz). */
+    data class Failed(val fileName: Int, val notAvailable: Boolean) : VideoState
+}
 
 @HiltViewModel
 class HomeVM @Inject constructor(
     private val repo: MualimRepository,
-    private val localStorage: AppPreference
+    private val localStorage: AppPreference,
+    private val videos: VideoRepository,
 ): BaseVM() {
+
+    private val _videoState = MutableStateFlow<VideoState>(VideoState.Idle)
+    val videoState: StateFlow<VideoState> = _videoState.asStateFlow()
+
+    private var videoJob: Job? = null
+
+    /**
+     * [fileName] dersinin videosunu acar: cihazda varsa hemen oynatilir, yoksa indirilir.
+     * Baska bir ders secilirse onceki indirme iptal edilir; yarim kalan dosya bir sonraki
+     * seferde kaldigi yerden devam eder.
+     */
+    fun openVideo(fileName: Int) {
+        val current = _videoState.value
+        val sameLesson = when (current) {
+            is VideoState.Ready -> current.fileName == fileName
+            is VideoState.Downloading -> current.fileName == fileName
+            else -> false
+        }
+        if (sameLesson) return
+
+        videoJob?.cancel()
+        videos.localVideo(fileName)?.let {
+            _videoState.value = VideoState.Ready(fileName, it)
+            return
+        }
+
+        _videoState.value = VideoState.Downloading(fileName, null)
+        videoJob = viewModelScope.launch {
+            try {
+                val file = videos.getVideo(fileName) { percent ->
+                    _videoState.value = VideoState.Downloading(fileName, percent)
+                }
+                _videoState.value = VideoState.Ready(fileName, file)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e("HomeVM", "Video acilamadi: $fileName", e)
+                _videoState.value = VideoState.Failed(fileName, e is VideoNotAvailableException)
+            }
+        }
+    }
+
+    /** Hata sonrasi "tekrar dene". */
+    fun retryVideo() {
+        val failed = _videoState.value as? VideoState.Failed ?: return
+        _videoState.value = VideoState.Idle
+        openVideo(failed.fileName)
+    }
 
     val isOnBoardingShown = repo.isOnboardingShown()
 
@@ -133,7 +208,8 @@ class HomeVM @Inject constructor(
 
 
     fun getFileNameExceptExtByScannerResult(scannerResult: String): Int {
-        val lesson = items.filterIsInstance<Lesson>().find { it.id == scannerResult.toIntOrNull() }
+        // Kitaptaki QR kodlarinda sadece ders numarasi vardir (ornegin "5" veya "101").
+        val lesson = items.filterIsInstance<Lesson>().find { it.id == scannerResult.trim().toIntOrNull() }
         return lesson?.fileNameExceptExt ?: 0
     }
 

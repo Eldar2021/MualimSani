@@ -35,12 +35,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Acilista hangi ekranin gosterilecegi bir kez burada belirlenir.
-        val startDestination = when {
-            !localStorage.isOnboardingShown() -> Screens.Onboarding.route
-            !localStorage.areFilesDownloaded() -> Screens.Downloading.route
-            else -> Screens.Home.route
-        }
-        val areVideosDownloaded = localStorage.areFilesDownloaded()
+        // Toplu indirme ekrani artik acilista gosterilmez; videolar ders acildikca iner.
+        val startDestination =
+            if (localStorage.isOnboardingShown()) Screens.Home.route else Screens.Onboarding.route
 
         setContent {
             MualimSaniTheme {
@@ -51,7 +48,6 @@ class MainActivity : ComponentActivity() {
                     AppNavHost(
                         navController = rememberNavController(),
                         startDestination = startDestination,
-                        areVideosDownloaded = areVideosDownloaded,
                         currentLanguage = localStorage.getLanguage(),
                         onLanguageChanged = { language ->
                             localStorage.setLanguage(language)

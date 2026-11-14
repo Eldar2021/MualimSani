@@ -119,4 +119,8 @@
     <string name="scanner_title">QR сканер</string>
     <string name="download_failed">Жүктөө учурунда ката кетти.\nИнтернет байланышын текшерип, кайра аракет кылыңыз.</string>
     <string name="retry">Кайра аракет кылуу</string>
+    <string name="download_all">Бардык сабактарды жүктөп алуу</string>
+    <string name="download_all_hint">Интернетсиз көрүү үчүн (≈220 МБ). Wi-Fi колдонуу сунушталат.</string>
+    <string name="video_loading">Видео жүктөлүүдө…</string>
+    <string name="video_not_available">Бул сабактын видеосу азырынча жок.</string>
 </resources>

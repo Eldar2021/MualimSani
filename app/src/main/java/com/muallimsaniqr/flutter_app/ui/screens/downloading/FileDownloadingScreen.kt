@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,28 +23,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.muallimsaniqr.flutter_app.R
-import com.muallimsaniqr.flutter_app.ui.extensions.getDownloadedVideoFolder
 import com.muallimsaniqr.flutter_app.ui.extensions.painter
 import com.muallimsaniqr.flutter_app.ui.extensions.showToast
 import com.muallimsaniqr.flutter_app.ui.extensions.strResource
 import com.muallimsaniqr.flutter_app.ui.widgets.buttons.MualimButton
 
 @Composable
-fun FileDownloadingScreen(vm: FileDownloaderVM, navigateToHomeScreen: () -> Unit = {}) {
+fun FileDownloadingScreen(vm: FileDownloaderVM, onCompleted: () -> Unit = {}) {
 
     val context = LocalContext.current
-    val videoFolder = remember { context.getDownloadedVideoFolder() }
     val state by vm.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        vm.downloadVideos(videoFolder)
+        vm.downloadAll()
     }
 
     val allDownloadedMessage = R.string.all_files_downloaded.strResource
     LaunchedEffect(state) {
         if (state is DownloadState.Completed) {
             context.showToast(allDownloadedMessage)
-            navigateToHomeScreen()
+            onCompleted()
         }
     }
 
@@ -83,7 +80,7 @@ fun FileDownloadingScreen(vm: FileDownloaderVM, navigateToHomeScreen: () -> Unit
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                         MualimButton(text = R.string.retry.strResource) {
-                            vm.retry(videoFolder)
+                            vm.retry()
                         }
                     }
 

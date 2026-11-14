@@ -115,4 +115,8 @@
     <string name="scanner_title">QR scanner</string>
     <string name="download_failed">Download failed.\nCheck your internet connection and try again.</string>
     <string name="retry">Retry</string>
+    <string name="download_all">Download all lessons</string>
+    <string name="download_all_hint">For offline viewing (≈220 MB). Wi-Fi recommended.</string>
+    <string name="video_loading">Loading video…</string>
+    <string name="video_not_available">The video for this lesson is not available yet.</string>
 </resources>

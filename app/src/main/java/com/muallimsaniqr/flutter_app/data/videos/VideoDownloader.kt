@@ -31,22 +31,50 @@ class VideoDownloader(private val baseUrl: String) {
      * [onBytes] yeni okunan bayt sayisiyla cagrilir.
      */
     fun download(video: RemoteVideo, partFile: File, onBytes: (Long) -> Unit) {
-        val existing = if (partFile.exists()) partFile.length() else 0L
-        if (existing >= video.size) {
+        downloadFile(video.name, video.size, partFile, onTotal = {}, onBytes = onBytes)
+    }
+
+    /**
+     * [name] dosyasini [partFile] icine indirir. [expectedSize] bilinmiyorsa (null) boyut
+     * sunucunun yanitindan (Content-Length / Content-Range) alinir ve [onTotal] ile bildirilir.
+     * Boylece tek bir video icin once manifest.json'u indirmek gerekmez.
+     *
+     * @throws java.io.FileNotFoundException dosya sunucuda yoksa (HTTP 404).
+     */
+    fun downloadFile(
+        name: String,
+        expectedSize: Long?,
+        partFile: File,
+        onTotal: (Long) -> Unit,
+        onBytes: (Long) -> Unit,
+    ) {
+        var existing = if (partFile.exists()) partFile.length() else 0L
+        if (expectedSize != null && existing >= expectedSize) {
             // Beklenenden buyuk/esit kismi dosya: guvenmek yerine bastan indir.
             partFile.delete()
-            return download(video, partFile, onBytes)
+            existing = 0
         }
 
-        val connection = open(video.name)
+        val connection = open(name)
+        val total: Long
         try {
             if (existing > 0) connection.setRequestProperty("Range", "bytes=$existing-")
 
             val append = when (connection.responseCode) {
                 HttpURLConnection.HTTP_PARTIAL -> true
                 HttpURLConnection.HTTP_OK -> false // sunucu Range desteklemiyor: bastan yaz
-                else -> throw IOException("${video.name}: HTTP ${connection.responseCode}")
+                HttpURLConnection.HTTP_NOT_FOUND -> throw java.io.FileNotFoundException(name)
+                // Kismi dosya zaten tam ise sunucu 416 doner: bastan indir.
+                416 -> {
+                    partFile.delete()
+                    connection.disconnect()
+                    return downloadFile(name, expectedSize, partFile, onTotal, onBytes)
+                }
+                else -> throw IOException("$name: HTTP ${connection.responseCode}")
             }
+            total = expectedSize ?: serverTotal(connection, append, existing)
+                ?: throw IOException("$name: sunucu dosya boyutunu bildirmedi")
+            onTotal(total)
             if (append) onBytes(existing) else partFile.delete()
 
             connection.inputStream.use { input ->
@@ -65,9 +93,19 @@ class VideoDownloader(private val baseUrl: String) {
         }
 
         val actual = partFile.length()
-        if (actual != video.size) {
-            throw IOException("${video.name}: boyut uyusmuyor ($actual != ${video.size})")
+        if (actual != total) {
+            throw IOException("$name: boyut uyusmuyor ($actual != $total)")
         }
+    }
+
+    /** Dosyanin toplam boyutu: 206'da "Content-Range: bytes a-b/TOPLAM", 200'de Content-Length. */
+    private fun serverTotal(connection: HttpURLConnection, partial: Boolean, existing: Long): Long? {
+        if (partial) {
+            connection.getHeaderField("Content-Range")
+                ?.substringAfterLast('/')?.toLongOrNull()?.let { return it }
+            return connection.contentLengthLong.takeIf { it >= 0 }?.plus(existing)
+        }
+        return connection.contentLengthLong.takeIf { it >= 0 }
     }
 
     private fun open(path: String): HttpURLConnection =

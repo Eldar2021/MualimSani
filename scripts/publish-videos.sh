@@ -18,10 +18,18 @@ MAX_BYTES=$((2 * 1024 * 1024 * 1024))   # GitHub: dosya basina en fazla 2 GiB
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 HOME_VM="$ROOT/app/src/main/java/com/muallimsaniqr/flutter_app/ui/screens/home/HomeVM.kt"
 
-DIR="${1:-}"
-DRY_RUN="${2:-}"
+DIR=""
+DRY_RUN=""
+ALLOW_MISSING=""
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN="--dry-run" ;;
+    --allow-missing) ALLOW_MISSING=1 ;;  # eksik videolar atlanir; uygulama o dersi oynatamaz
+    *) DIR="$arg" ;;
+  esac
+done
 if [[ -z "$DIR" || ! -d "$DIR" ]]; then
-  echo "Kullanim: $0 <video-klasoru> [--dry-run]" >&2
+  echo "Kullanim: $0 <video-klasoru> [--dry-run] [--allow-missing]" >&2
   exit 1
 fi
 DIR="$(cd "$DIR" && pwd)"
@@ -38,8 +46,16 @@ for n in $EXPECTED; do
   [[ -s "$DIR/$n.mp4" ]] || missing+=("$n.mp4")
 done
 if (( ${#missing[@]} > 0 )); then
-  echo "HATA: ${#missing[@]} video eksik veya bos: ${missing[*]}" >&2
-  exit 1
+  if [[ -z "$ALLOW_MISSING" ]]; then
+    echo "HATA: ${#missing[@]} video eksik veya bos: ${missing[*]}" >&2
+    echo "Yine de yuklemek icin --allow-missing ekleyin." >&2
+    exit 1
+  fi
+  echo "UYARI: ${#missing[@]} video eksik, atlaniyor: ${missing[*]}" >&2
+  for m in "${missing[@]}"; do
+    EXPECTED=$(echo "$EXPECTED" | grep -vx "${m%.mp4}")
+  done
+  EXPECTED_COUNT=$(echo "$EXPECTED" | wc -l | tr -d ' ')
 fi
 
 for f in "$DIR"/*; do

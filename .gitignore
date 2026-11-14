@@ -28,3 +28,7 @@ keys.txt
 # Firebase istemci yapilandirmasi (proje sahibi ayrica saklar)
 google-services.json
 app/google-services.json
+
+# --- Ders videolari (buyuk dosyalar; GitHub Release ile dagitilir) ---
+resource/
+manifest.preview.json

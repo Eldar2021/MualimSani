@@ -16,9 +16,9 @@ This is an Android app (Kotlin, Jetpack Compose, Hilt, Media3) that goes with th
 - A file name is the number in the QR code. Lessons are `1–68.mp4` and suras are `101–116.mp4`. The source of truth is the `Lesson(id, title, fileNameExceptExt)` list in `HomeVM.kt`.
 - To publish, run `scripts/publish-videos.sh <folder> [--dry-run] [--allow-missing]`. It reads the expected list from `HomeVM.kt`.
 - The video files live in `resource/`, which is gitignored and about 260 MB. **Never commit them.**
-  - `resource/videos/` holds the raw Telegram downloads, numbered 1–85.
-  - `resource/videos-named/` holds the correctly renamed copies that were uploaded.
-- Known gap: lessons **30, 52 and 56 have no video yet**. The app does not crash on them; the player just stays empty.
+  - `resource/videos-named/` holds all 84 correctly named videos, the same set that is on the release.
+- If a video is missing, the app does not crash; the player just stays empty. Since 2026-11-15 all 84 videos are published.
+- The original Telegram set had an 85th video, Fatiha. It is not in the app's lesson list and was not uploaded.
 
 ## Behaviour that looks like a bug but is not
 

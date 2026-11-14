@@ -113,9 +113,6 @@ Dosya adı, kitaptaki QR kodun içindeki numaradır:
 
 Tam liste `HomeVM.kt` içindeki `Lesson(...)` satırlarındadır.
 
-> **Eksik videolar (Kasım 2026):** 30, 52 ve 56. derslerin videoları henüz yok.
-> Bu derslere tıklanınca video açılmaz (uygulama çökmez).
-
 ### Video yükleme / güncelleme
 
 Videoları doğru isimlerle bir klasöre koyup ([GitHub CLI](https://cli.github.com/)

@@ -16,12 +16,11 @@ This is an Android app (Kotlin, Jetpack Compose, Hilt, Media3) that goes with th
 - **Download all (side drawer):** `FileDownloaderVM` reads `manifest.json` (`name` and `size`) and downloads every video, skipping files that already have the right size.
 - **Both paths** share `VideoRepository.fetch`. It downloads to a `.part` file, resumes with HTTP Range, retries 3 times, and uses a per-file mutex so the same file is never downloaded twice in parallel.
 - **Known limitation:** If a video is replaced on the server under the same name, phones that already have it keep the old copy. Only "download all" notices the size change. To ship a new version, prefer a new tag or file name.
-- QR codes in the book contain only the lesson number (for example `5` or `101`); `HomeVM.getFileNameExceptExtByScannerResult` matches it to `Lesson.id`. A file name is the number in the QR code. Lessons are `1–68.mp4` and suras are `101–116.mp4`. The source of truth is the `Lesson(id, title, fileNameExceptExt)` list in `HomeVM.kt`.
+- QR codes in the book contain only the lesson number (for example `5` or `101`); `HomeVM.getFileNameExceptExtByScannerResult` matches it to `Lesson.id`. A file name is the number in the QR code. Lessons are `1–68.mp4` and suras are `101–117.mp4`. `117` is Fatiha; it is listed first among the suras but keeps QR number 117. The source of truth is the `Lesson(id, title, fileNameExceptExt)` list in `HomeVM.kt`.
 - To publish, run `scripts/publish-videos.sh <folder> [--dry-run] [--allow-missing]`. It reads the expected list from `HomeVM.kt`.
 - The video files live in `resource/`, which is gitignored and about 260 MB. **Never commit them.**
-  - `resource/videos-named/` holds all 84 correctly named videos, the same set that is on the release.
-- If a video is missing, the app does not crash; the player just stays empty. Since 2026-11-15 all 84 videos are published.
-- The original Telegram set had an 85th video, Fatiha. It is not in the app's lesson list and was not uploaded.
+  - `resource/videos-named/` holds all 85 correctly named videos, the same set that is on the release.
+- If a video is missing, the app does not crash; the player just stays empty. Since 2026-11-15 all 85 videos are published.
 
 ## Testing on the emulator
 - The emulator's `adb emu network speed edge/umts` profiles stall TLS connections to GitHub; downloads time out there even though they work at full speed. Do not treat that as an app bug without checking on a real device.

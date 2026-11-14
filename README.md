@@ -117,6 +117,7 @@ Dosya adı, kitaptaki QR kodun içindeki numaradır:
 | --------------------- | ------------------------ |
 | `1.mp4` … `68.mp4`    | 1–68. dersler            |
 | `101.mp4` … `116.mp4` | Sureler (Âdiyât → İhlâs) |
+| `117.mp4` | Fâtiha (listede surelerin başında) |
 
 Tam liste `HomeVM.kt` içindeki `Lesson(...)` satırlarındadır.
 

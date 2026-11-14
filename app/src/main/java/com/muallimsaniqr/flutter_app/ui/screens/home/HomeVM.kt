@@ -188,6 +188,8 @@ class HomeVM @Inject constructor(
 
         HeaderItem(R.string.suras),
 
+        // Fatiha'nin kitaptaki QR numarasi 117'dir; listede ise geleneksel olarak ilk siradadir.
+        Lesson(117, R.string.suro_fatiha, 117),
         Lesson(101, R.string.suro_aadiyat, 101),
         Lesson(102, R.string.suro_zilzala, 102),
         Lesson(103, R.string.suro_takasur, 103),

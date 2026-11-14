@@ -11,13 +11,6 @@
 -keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
 -dontwarn kotlin.**
 
-# --- Firebase / Google Play Services ---
-# Firebase modelleri yansima (reflection) ile olusturulabilir.
--keepclassmembers class * {
-    @com.google.firebase.database.PropertyName <methods>;
-}
--dontwarn com.google.firebase.**
-
 # --- ML Kit (barkod okuma) ---
 -keep class com.google.mlkit.** { *; }
 -dontwarn com.google.mlkit.**

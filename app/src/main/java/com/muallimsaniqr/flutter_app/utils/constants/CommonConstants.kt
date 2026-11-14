@@ -6,7 +6,4 @@ object CommonConstants {
     const val INSTAGRAM_USERNAME = "jonmuhammad.93kg"
 
     const val VIDEOS_DIRECTION = "videos"
-
-    // Firebase Storage klasoru artik BuildConfig.FIREBASE_VIDEOS_FOLDER icinde
-    // tanimli (app/build.gradle.kts), boylece build tipine gore degistirilebilir.
 }

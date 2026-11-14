@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.google.services)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -34,8 +33,14 @@ android {
 
         resourceConfigurations += listOf("ky", "ru", "uz", "en")
 
-        // Firebase Storage'daki video klasoru. Test icin "videostest/" olarak degistirilebilir.
-        buildConfigField("String", "FIREBASE_VIDEOS_FOLDER", "\"videos/\"")
+        // Ders videolarinin indirildigi adres (sonunda "/" olmali). Burada manifest.json
+        // ve videolar bulunur; scripts/publish-videos.sh ile yuklenir. Baska bir sunucuya
+        // (orn. Cloudflare R2) gecmek icin sadece bu adresi degistirmek yeterlidir.
+        buildConfigField(
+            "String",
+            "VIDEOS_BASE_URL",
+            "\"https://github.com/Eldar2021/MualimSani/releases/download/videos-v1/\""
+        )
     }
 
     signingConfigs {
@@ -125,10 +130,6 @@ dependencies {
 
     // lottie
     implementation(libs.lottie.compose)
-
-    // firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.storage)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

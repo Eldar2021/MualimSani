@@ -25,6 +25,8 @@ keystore.properties
 *.keystore
 keys.txt
 
+work/*
+
 # Firebase istemci yapilandirmasi (proje sahibi ayrica saklar)
 google-services.json
 app/google-services.json

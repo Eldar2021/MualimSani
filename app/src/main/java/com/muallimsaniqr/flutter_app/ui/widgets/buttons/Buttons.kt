@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.muallimsaniqr.flutter_app.ui.theme.MualimSaniTheme
 
@@ -42,7 +43,8 @@ fun MualimButton(
         elevation = elevation,
         border = border
         ) {
-        Text(text = text, style = textStyle)
+        // Uzun metin iki satira kirildiginda da ortali kalsin.
+        Text(text = text, style = textStyle, textAlign = TextAlign.Center)
     }
 }
 

@@ -1,6 +1,7 @@
 package com.muallimsaniqr.flutter_app.ui.widgets.video
 
 import android.net.Uri
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -15,6 +16,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import com.muallimsaniqr.flutter_app.R
 
 /**
  * Yerel dosyadan video oynatan Media3/ExoPlayer tabanli oynatici.
@@ -64,7 +66,9 @@ fun VideoPlayer(
     AndroidView(
         modifier = modifier,
         factory = { ctx ->
-            PlayerView(ctx).apply {
+            // TextureView kullanan PlayerView XML'den olusturulur (bkz. view_player.xml).
+            // SurfaceView ile QR'dan donup yeni ders acildiginda goruntu siyah kaliyordu.
+            (LayoutInflater.from(ctx).inflate(R.layout.view_player, null) as PlayerView).apply {
                 player = exoPlayer
                 useController = true
                 setShowNextButton(false)

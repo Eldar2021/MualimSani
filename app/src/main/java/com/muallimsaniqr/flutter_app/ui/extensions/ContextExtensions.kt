@@ -9,9 +9,6 @@ import android.os.Environment
 import android.provider.Settings
 import android.widget.Toast
 import androidx.annotation.StringRes
-import com.muallimsaniqr.flutter_app.App
-import com.muallimsaniqr.flutter_app.MainActivity
-import com.muallimsaniqr.flutter_app.ui.screens.scanner.ScannerActivity
 import com.muallimsaniqr.flutter_app.utils.constants.CommonConstants
 import java.io.File
 

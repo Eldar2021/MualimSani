@@ -1,39 +1,44 @@
 package com.muallimsaniqr.flutter_app.utils.scanner
 
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import com.muallimsaniqr.flutter_app.ui.extensions.showToast
+import java.util.concurrent.atomic.AtomicBoolean
 
-class BarcodeAnalyzer(private val context: Context, private val result: (String?) -> Unit = {}) : ImageAnalysis.Analyzer {
+/**
+ * Kamera goruntusundeki QR kodunu okur.
+ *
+ * Sonuc yalnizca bir kez bildirilir; boylece ayni kod arka arkaya birden fazla
+ * kez islenmez.
+ */
+class BarcodeAnalyzer(private val onResult: (String) -> Unit) : ImageAnalysis.Analyzer {
 
     private val options = BarcodeScannerOptions.Builder()
-        .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
+        .setBarcodeFormats(Barcode.FORMAT_QR_CODE, Barcode.FORMAT_ALL_FORMATS)
         .build()
 
     private val scanner = BarcodeScanning.getClient(options)
+    private val isDelivered = AtomicBoolean(false)
 
     @SuppressLint("UnsafeOptInUsageError")
     override fun analyze(imageProxy: ImageProxy) {
-        imageProxy.image?.let { image ->
-            scanner.process(
-                InputImage.fromMediaImage(
-                    image, imageProxy.imageInfo.rotationDegrees
-                )
-            ).addOnSuccessListener { barcode ->
-                barcode?.takeIf { it.isNotEmpty() }
-                    ?.firstNotNullOf { it.rawValue } // takes first non-null value
-                    ?.let {
-                        result(it)
-                    }
-            }.addOnCompleteListener {
-                imageProxy.close()
-            }
+        val image = imageProxy.image
+        if (image == null || isDelivered.get()) {
+            imageProxy.close()
+            return
         }
+
+        scanner.process(InputImage.fromMediaImage(image, imageProxy.imageInfo.rotationDegrees))
+            .addOnSuccessListener { barcodes ->
+                barcodes.firstNotNullOfOrNull { it.rawValue }
+                    ?.let { value ->
+                        if (isDelivered.compareAndSet(false, true)) onResult(value)
+                    }
+            }
+            .addOnCompleteListener { imageProxy.close() }
     }
 }

@@ -109,4 +109,13 @@
     <string name="suro_nas">Нас сураси</string>
     <string name="suro_falak">Фалак сураси</string>
     <string name="suro_ihlas">Ихлас сураси</string>
+
+    <!-- Downloading / scanner -->
+    <string name="scanner_title">QR skaner</string>
+    <string name="download_failed">Yuklashda xatolik.\nInternet aloqasini tekshirib, qayta urinib ko\'ring.</string>
+    <string name="retry">Qayta urinish</string>
+    <string name="download_all">Barcha darslarni yuklab olish</string>
+    <string name="download_all_hint">Internetsiz ko\'rish uchun (≈220 MB). Wi-Fi tavsiya etiladi.</string>
+    <string name="video_loading">Video yuklanmoqda…</string>
+    <string name="video_not_available">Bu dars videosi hozircha mavjud emas.</string>
 </resources>

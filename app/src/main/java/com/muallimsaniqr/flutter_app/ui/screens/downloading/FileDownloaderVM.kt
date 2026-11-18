@@ -1,119 +1,112 @@
 package com.muallimsaniqr.flutter_app.ui.screens.downloading
 
-import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.res.stringArrayResource
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.storage.FirebaseStorage
 import com.muallimsaniqr.flutter_app.common.base.BaseVM
 import com.muallimsaniqr.flutter_app.data.storage.AppPreference
-import com.muallimsaniqr.flutter_app.utils.constants.CommonConstants
+import com.muallimsaniqr.flutter_app.data.videos.VideoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.File
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 
+/** Ders videolarinin toplu indirilme durumu. */
+sealed interface DownloadState {
+    /** Sunucudan video listesi (manifest.json) aliniyor. */
+    data object Preparing : DownloadState
 
-@HiltViewModel
-class FileDownloaderVM @Inject constructor(
-    private val localStorage: AppPreference
-) : BaseVM() {
+    /** Indirme suruyor. [percent] 0..100 arasindadir ve indirilen bayta gore hesaplanir. */
+    data class InProgress(val percent: Int, val downloaded: Int, val total: Int) : DownloadState
 
-    var isDownloading = mutableStateOf(true)
-    val progress = mutableIntStateOf(0)
-    private var downloadCount = 0
-    private var itemsCount = 0
+    /** Butun dosyalar indirildi. */
+    data object Completed : DownloadState
 
-    fun downloadVideos(videoFolder: File) {
-        val storage: FirebaseStorage = FirebaseStorage.getInstance()
-        try {
-            viewModelScope.launch(Dispatchers.IO) {
-                storage.reference.child(CommonConstants.FIREBASE_VIDEOS_FOLDER).listAll()
-                    .addOnSuccessListener {
-                        itemsCount = it.items.size
-                        initializeAlreadyDownloaded()
-                        it.items.forEach { item ->
-                            val name = item.name
-                            if (!isFileAlreadyDownloaded(name)) {
-                                val videoFile = File(videoFolder, name)
-                                item.getFile(videoFile).addOnSuccessListener {
-                                    updateDownloadProgress()
-                                    setFileAsDownloaded(name)
-                                    Log.e("SUCCESSdownloadVideo", "downloadVideo: $name")
-                                }.addOnFailureListener {
-                                    Log.e("FAILUREdownloadVideo", "downloadVideo: $it")
-                                }
-                            }
-                        }
-                    }.addOnFailureListener {
-                    Log.e("failureOnGetVideos", "$it")
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("exceptionOnDownloadVideo", "downloadVideoArchive: $e")
-        }
-    }
-
-    private fun initializeAlreadyDownloaded() {
-        val alreadyDownloadedFiles = localStorage.getAlreadyDownloadedVideos()
-        Log.e("alreadyDownloadedFiles", "$alreadyDownloadedFiles")
-        downloadCount = alreadyDownloadedFiles.size
-        updateUiProgress()
-        checkIfAllFilesDownloaded()
-    }
-
-    private fun updateDownloadProgress() {
-        downloadCount++
-        updateUiProgress()
-        checkIfAllFilesDownloaded()
-    }
-
-    private fun updateUiProgress() {
-        progress.intValue = if (itemsCount == 0) 0 else (downloadCount * 100) / itemsCount
-        Log.e("updateUiProgress", "downloadCount: $downloadCount, itemsCount: $itemsCount and progress: ${progress.intValue}")
-    }
-
-    private fun checkIfAllFilesDownloaded() {
-        if (downloadCount == itemsCount) {
-            localStorage.setFilesDownloaded(true)
-            isDownloading.value = false
-        }
-    }
-
-    private fun isFileAlreadyDownloaded(fileName: String): Boolean {
-        val alreadyDownloadFiles = localStorage.getAlreadyDownloadedVideos()
-        Log.e("isAlreadyDownloadFile", "fileName $fileName in $alreadyDownloadFiles ${fileName in alreadyDownloadFiles}")
-        return fileName in alreadyDownloadFiles
-    }
-
-    private fun setFileAsDownloaded(fileName: String) {
-        localStorage.setAlreadyDownloadedVideo(fileName)
-    }
-
-
-// Use to download via DownloadManager to show notification
-//     suspend fun downloadVideo(uri: Uri, name: String, context: Context) {
-//        if (isFileAlreadyDownloaded(name)) return
-//
-//        val request = DownloadManager.Request(uri)
-//            .setTitle(name)
-//            .setDescription("Downloading")
-//            .setAllowedOverRoaming(false)
-//            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-//            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-//            .setDestinationInExternalFilesDir(
-//                context,
-//                CommonConstants.VIDEOS_DIRECTION,
-//                name
-//            )
-//        val downloadManager = context.getSystemService(DownloadManager::class.java)
-//        downloadManager.enqueue(request)
-//
-//    }
+    /** Indirme basarisiz oldu; kullaniciya tekrar deneme sunulur. */
+    data object Failed : DownloadState
 }
 
+/**
+ * Yan menudeki "tum dersleri indir" ekrani: internetsiz kullanim icin butun videolari
+ * bir kerede indirir. Normal akista videolar ders acildikca tek tek iner (bkz. HomeVM).
+ */
+@HiltViewModel
+class FileDownloaderVM @Inject constructor(
+    private val videos: VideoRepository,
+    private val localStorage: AppPreference,
+) : BaseVM() {
 
-data class DonwloadingFile(val uri: Uri, val name: String)
+    private val _state = MutableStateFlow<DownloadState>(DownloadState.Preparing)
+    val state: StateFlow<DownloadState> = _state.asStateFlow()
+
+    private var downloadJob: Job? = null
+
+    /**
+     * `manifest.json` icindeki butun videolari indirir. Cihazda dogru boyutta duran
+     * dosyalar atlanir; en fazla [MAX_PARALLEL_DOWNLOADS] dosya ayni anda indirilir.
+     */
+    fun downloadAll() {
+        if (downloadJob?.isActive == true) return
+
+        downloadJob = viewModelScope.launch {
+            _state.value = DownloadState.Preparing
+            try {
+                val list = videos.manifest().videos
+                val totalBytes = list.sumOf { it.size }.coerceAtLeast(1)
+                val doneBytes = AtomicLong(0)
+                val doneFiles = AtomicInteger(0)
+                fun publish() {
+                    val percent = (doneBytes.get() * 100 / totalBytes).toInt().coerceIn(0, 100)
+                    _state.value = DownloadState.InProgress(percent, doneFiles.get(), list.size)
+                }
+                publish()
+
+                val semaphore = Semaphore(MAX_PARALLEL_DOWNLOADS)
+                coroutineScope {
+                    list.map { video ->
+                        async {
+                            semaphore.withPermit {
+                                videos.download(video) { bytes ->
+                                    doneBytes.addAndGet(bytes)
+                                    publish()
+                                }
+                            }
+                            doneFiles.incrementAndGet()
+                            publish()
+                        }
+                    }.awaitAll()
+                }
+
+                localStorage.setFilesDownloaded(true)
+                _state.value = DownloadState.Completed
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Videolar indirilemedi", e)
+                _state.value = DownloadState.Failed
+            }
+        }
+    }
+
+    /** Hata sonrasi kullanicinin "tekrar dene" aksiyonu. */
+    fun retry() {
+        downloadJob?.cancel()
+        downloadJob = null
+        downloadAll()
+    }
+
+    private companion object {
+        const val TAG = "FileDownloaderVM"
+        const val MAX_PARALLEL_DOWNLOADS = 4
+    }
+}

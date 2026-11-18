@@ -1,18 +1,11 @@
 package com.muallimsaniqr.flutter_app.ui.theme
 
 import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -84,27 +77,24 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun MualimSaniTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // Uygulama markasinin renkleri her cihazda ayni gorunsun diye koyu tema varsayilan
+    // olarak kapali. Koyu temayi acmak icin: darkTheme = isSystemInDarkTheme()
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            dynamicLightColorScheme(context)
-        }
+    // Not: onceki surumde Android 12+ cihazlarda "dynamic color" kullaniliyordu, yani
+    // uygulamanin renkleri kullanicinin duvar kagidina gore degisiyordu. Ustelik koyu
+    // tema secili olsa bile her zaman acik renk paleti donduruluyordu (hatali kod).
+    // Artik her cihazda projenin kendi renk paleti kullaniliyor.
+    val colorScheme = if (darkTheme) DarkColors else LightColors
 
-        darkTheme -> DarkColors
-        else -> LightColors
-    }
     val view = LocalView.current
     if (!view.isInEditMode) {
-        SideEffect {
-            (view.context as? Activity)?.window?.let { window ->
-                window.statusBarColor = colorScheme.background.toArgb()
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+        val window = (view.context as? Activity)?.window
+        if (window != null) {
+            SideEffect {
+                WindowCompat.getInsetsController(window, view)
+                    .isAppearanceLightStatusBars = !darkTheme
             }
         }
     }

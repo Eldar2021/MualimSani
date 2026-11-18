@@ -6,19 +6,22 @@ import com.muallimsaniqr.flutter_app.domain.model.Language
 import java.util.Locale
 
 object LocaleUtils {
-fun setLocale(c: Context, language: Language) = updateResources(c, language.lang)
 
-private fun updateResources(context: Context, language: String) {
-    context.resources.apply {
-        val locale = Locale(language)
-        val config = Configuration(configuration)
-
-        context.createConfigurationContext(configuration)
+    /**
+     * Verilen [language] icin yapilandirilmis bir [Context] dondurur.
+     *
+     * Activity'lerin `attachBaseContext` metodunda kullanilir. Onceki surumde
+     * kullanilan `Resources.updateConfiguration` API'si Android 25'ten beri
+     * kullanimdan kaldirilmisti ve Android 13+ cihazlarda guvenilir calismiyordu.
+     */
+    fun wrap(context: Context, language: Language): Context {
+        val locale = Locale.forLanguageTag(language.lang)
         Locale.setDefault(locale)
-        config.setLocale(locale)
-        // deprecated
-        context.resources.updateConfiguration(config, displayMetrics)
-        //context.createConfigurationContext(config)
+
+        val configuration = Configuration(context.resources.configuration).apply {
+            setLocale(locale)
+            setLayoutDirection(locale)
+        }
+        return context.createConfigurationContext(configuration)
     }
-  }
 }
